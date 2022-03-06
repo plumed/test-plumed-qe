@@ -44,8 +44,10 @@ jobs:
         sudo apt-get install -y libfftw3-dev
         sudo apt-get install -y gsl-bin
         sudo apt-get install -y libgsl0-dev
+        sudo apt-get install -y gfortran
         sudo apt-get install -y ccache
       # install INTEL at last since it modifies CC and CXX
+    - name: Install INTEL compiler
       if: contains( matrix.variant, '-intel-' )
       run: |
         wget https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS-2023.PUB
