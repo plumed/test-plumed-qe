@@ -1,0 +1,89 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+env:
+# on CI, better dump stack trace in case there is an error
+  PLUMED_STACK_TRACE: yes
+# use two threads for openMP tests
+  PLUMED_NUM_THREADS: 2
+# these are used to build required packages
+  CC: gcc
+  CXX: g++
+
+jobs:
+  linux:
+    runs-on: ubuntu-20.04
+    strategy:
+      fail-fast: false
+      matrix:
+        variant:
+        - -mpi-
+        - -
+        - -intel-
+    steps:
+    - uses: actions/checkout@v2
+    - uses: actions/cache@v2
+      with:
+        path: ~/.ccache
+        key: ccache-reset1-linux${{ matrix.variant }}hash-${{ github.sha }}
+        restore-keys: ccache-reset1-linux${{ matrix.variant }}hash-
+    - name: Set paths
+      run: |
+        echo "$HOME/opt/bin" >> $GITHUB_PATH
+        echo "CPATH=$HOME/opt/include:$CPATH" >> $GITHUB_ENV
+        echo "INCLUDE=$HOME/opt/include:$INCLUDE" >> $GITHUB_ENV
+        echo "LIBRARY_PATH=$HOME/opt/lib:$LIBRARY_PATH" >> $GITHUB_ENV
+        echo "LD_LIBRARY_PATH=$HOME/opt/lib:$LD_LIBRARY_PATH" >> $GITHUB_ENV
+    - name: Install generic packages
+      run: |
+        sudo apt-get update -qq
+        sudo apt-get install -y libatlas-base-dev
+        sudo apt-get install -y libfftw3-dev
+        sudo apt-get install -y gsl-bin
+        sudo apt-get install -y libgsl0-dev
+        sudo apt-get install -y ccache
+      # install INTEL at last since it modifies CC and CXX
+      if: contains( matrix.variant, '-intel-' )
+      run: |
+        wget https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS-2023.PUB
+        sudo apt-key add GPG-PUB-KEY-INTEL-SW-PRODUCTS-2023.PUB
+        rm GPG-PUB-KEY-INTEL-SW-PRODUCTS-2023.PUB
+        echo "deb https://apt.repos.intel.com/oneapi all main" | sudo tee /etc/apt/sources.list.d/oneAPI.list
+        sudo apt-get update
+        sudo apt-get install intel-oneapi-compiler-dpcpp-cpp-and-cpp-classic intel-oneapi-mkl intel-oneapi-mkl-devel intel-oneapi-compiler-fortran
+        source /opt/intel/oneapi/setvars.sh
+        printenv >> $GITHUB_ENV
+        echo "CXX=icpc" >> $GITHUB_ENV
+        echo "CC=icc" >> $GITHUB_ENV
+        echo "FC=ifort" >> $GITHUB_ENV
+    - name: Install MPI
+      # install MPI at last since it modifies CC and CXX
+      if: contains( matrix.variant, '-mpi-' )
+      run: |
+        sudo apt-get install -y libopenmpi-dev openmpi-bin
+        echo "CC=mpicc" >> $GITHUB_ENV
+        echo "CXX=mpic++" >> $GITHUB_ENV
+        echo "OMPI_MCA_btl_base_warn_component_unused=0" >> $GITHUB_ENV
+        echo "OMPI_MCA_btl_base_verbose=0" >> $GITHUB_ENV
+        echo "MPIEXEC=mpirun --oversubscribe" >> $GITHUB_ENV
+    - name: Build PLUMED
+      run: |
+        ccache -s -M 100M
+        git clone https://github.com/plumed/plumed2.git
+        cd plumed2
+        ./configure CXX="ccache $CXX" --disable-dependency-tracking LDFLAGS=-Wl,-rpath,$LD_LIBRARY_PATH --prefix="$HOME/opt"
+        make -j 4
+        make install
+        ccache -s -M 100M
+    - name: Build QE
+      run: |
+        git clone https://gitlab.com/QEF/q-e.git
+        cd q-e
+        git checkout qe-7.0
+        ./configure
+        plumed patch --engine qespresso-7.0 --patch
+        make pw
+
