@@ -85,11 +85,13 @@ jobs:
         git clone https://gitlab.com/QEF/q-e.git
         cd q-e
         git checkout qe-7.0
-        ./configure --prefix="$HOME/opt"
+        ./configure FC="ccache $FC" --prefix="$HOME/opt"
         plumed patch --engine qespresso-7.0 --patch
         make pw
-        make install
+        make install        
     - name: Check files
       run: |
         ls -ltr $HOME/opt/bin $HOME/opt/lib
+        nm -C $HOME/opt/bin/pw.x | grep PLMD
+        ldd $HOME/opt/bin/pw.x
 
