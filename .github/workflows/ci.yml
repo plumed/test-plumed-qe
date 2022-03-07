@@ -94,7 +94,7 @@ jobs:
         do
             ls -ltr $prefix/bin
             ls -ltr $prefix/lib
-            nm -C $prefix/bin/pw.x | grep PLMD
+            nm -C $prefix/bin/pw.x | grep PLMD | cat # cat avoid failing
             ldd $prefix/bin/pw.x
         done
 
