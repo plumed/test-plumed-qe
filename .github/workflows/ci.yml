@@ -85,16 +85,14 @@ jobs:
         git clone https://gitlab.com/QEF/q-e.git
         cd q-e
         git checkout qe-7.0
-        ./configure --prefix="$HOME/opt" &&         plumed patch --engine qespresso-7.0 -p           && make pw && make install && plumed patch --engine qespresso-7.0 -r
-        ./configure --prefix="$HOME/opt-runtime" && plumed patch --engine qespresso-7.0 -p --runtime && make pw && make install && plumed patch --engine qespresso-7.0 -r
-        ./configure --prefix="$HOME/opt-static" &&  plumed patch --engine qespresso-7.0 -p --static  && make pw && make install && plumed patch --engine qespresso-7.0 -r
+        ./configure --prefix="$HOME/opt"
+        plumed patch --engine qespresso-7.0 -p
+        make pw
+        make install
     - name: Check files
       run: |
-        for prefix in $HOME/opt $HOME/opt-runtime $HOME/opt-static
-        do
-            ls -ltr $prefix/bin
-            ls -ltr $prefix/lib
-            nm -C $prefix/bin/pw.x | grep PLMD | cat # cat avoid failing
-            ldd $prefix/bin/pw.x
-        done
-
+        prefix=$HOME/opt
+        ls -ltr $prefix/bin
+        ls -ltr $prefix/lib
+        nm -C $prefix/bin/pw.x | grep plumed
+        ldd $prefix/bin/pw.x
