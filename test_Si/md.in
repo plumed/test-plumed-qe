@@ -1,5 +1,6 @@
  &control
     calculation='md'
+    pseudo_dir='./'
     dt=20,
     nstep=50
  /
