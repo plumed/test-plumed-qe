@@ -1,6 +1,7 @@
 cd test_Si
 
 pw.x -plumed < md.in > md.out
+echo $(ls)
 
 for file in *.reference ; do
   new="${file%.reference}"
