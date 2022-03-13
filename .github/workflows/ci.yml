@@ -96,3 +96,6 @@ jobs:
         ls -ltr $prefix/lib
         nm -C $prefix/bin/pw.x | grep plumed
         ldd $prefix/bin/pw.x
+    - name: Run tests
+      run: |
+        ./run_tests.sh
