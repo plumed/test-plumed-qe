@@ -87,7 +87,7 @@ jobs:
         git checkout qe-7.0
         ./configure --prefix="$HOME/opt"
         plumed patch --engine qespresso-7.0 -p
-        make -j 4 pw
+        make pw
         make install
     - name: Check files
       run: |
