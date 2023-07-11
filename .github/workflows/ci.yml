@@ -100,3 +100,6 @@ jobs:
     - name: Run tests
       run: |
         ./run_tests.sh
+    - name: Run other tests
+      run: |
+        ./run_tests2.sh

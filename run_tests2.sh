@@ -1,4 +1,4 @@
-cd test_Si
+cd test_H2O
 
 pw.x -plumed <md.in >md.out
 
