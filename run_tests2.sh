@@ -2,7 +2,8 @@
 
 for testDir in test_Si test_H2O; do
 
-  cd "${testDir}" || exit
+  cd "${testDir}" || exit 1
+  echo "running test in ${testDir}"
 
   pw.x -plumed <md.in >md.out
 
@@ -11,7 +12,7 @@ for testDir in test_Si test_H2O; do
     if test -f "$new"; then
       cp "$new" "$new.zfix"
       DIFFOPT=""
-      out="$(diff "$DIFFOPT" "$file" "$new.zfix")"
+      out="$(diff $DIFFOPT "$file" "$new.zfix")"
       test -n "$out" && {
         echo FAILURE
         echo "Diff for ${file%.reference}:"
