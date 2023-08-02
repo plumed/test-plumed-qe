@@ -76,7 +76,7 @@ jobs:
         ccache -s -M 100M
         git clone https://github.com/Iximiel/plumed2.git
         cd plumed2
-        git checkout pwPatchMasses2_8
+        git checkout pwPatchMasses2_9
         ./configure CXX="ccache $CXX" --disable-dependency-tracking LDFLAGS=-Wl,-rpath,$LD_LIBRARY_PATH --prefix="$HOME/opt"
         make -j 4
         make install
