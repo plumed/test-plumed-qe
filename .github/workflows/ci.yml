@@ -74,9 +74,8 @@ jobs:
     - name: Build PLUMED
       run: |
         ccache -s -M 100M
-        git clone https://github.com/Iximiel/plumed2.git
+        git clone https://github.com/plumed/plumed2.git
         cd plumed2
-        git checkout pwPatchMasses2_9
         ./configure CXX="ccache $CXX" --disable-dependency-tracking LDFLAGS=-Wl,-rpath,$LD_LIBRARY_PATH --prefix="$HOME/opt"
         make -j 4
         make install
@@ -100,4 +99,3 @@ jobs:
     - name: Run tests
       run: |
         ./run_tests.sh
-        
