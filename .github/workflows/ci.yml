@@ -84,9 +84,9 @@ jobs:
       run: |
         git clone https://gitlab.com/QEF/q-e.git
         cd q-e
-        git checkout qe-7.0
+        git checkout qe-7.2
         ./configure --prefix="$HOME/opt"
-        plumed patch --engine qespresso-7.0 -p
+        plumed patch --engine qespresso-7.0 -p -f
         make pw
         make install
     - name: Check files
