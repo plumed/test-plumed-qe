@@ -71,6 +71,7 @@ jobs:
         path: ~/.ccache
         key: ccache-linux${{ matrix.variant }}hash-${{ github.sha }}
         restore-keys: ccache-linux${{ matrix.variant }}hash-
+
     - name: Build PLUMED
       run: |
         ccache -s -M 100M
