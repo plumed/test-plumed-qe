@@ -85,7 +85,7 @@ jobs:
     - uses: actions/cache/save@v3
       if: always()
       with:
-        path: path/to/dependencies
+        path: ~/.ccache
         key: ccache-linux${{ matrix.variant }}hash-${{ github.sha }}
 
     - name: Build QE
