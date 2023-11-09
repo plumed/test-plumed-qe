@@ -24,12 +24,7 @@ jobs:
         - -
         - -intel-
     steps:
-    - uses: actions/checkout@v2
-    - uses: actions/cache@v2
-      with:
-        path: ~/.ccache
-        key: ccache-reset1-linux${{ matrix.variant }}hash-${{ github.sha }}
-        restore-keys: ccache-reset1-linux${{ matrix.variant }}hash-
+    - uses: actions/checkout@v3
     - name: Set paths
       run: |
         echo "$HOME/opt/bin" >> $GITHUB_PATH
@@ -71,6 +66,11 @@ jobs:
         echo "OMPI_MCA_btl_base_warn_component_unused=0" >> $GITHUB_ENV
         echo "OMPI_MCA_btl_base_verbose=0" >> $GITHUB_ENV
         echo "MPIEXEC=mpirun --oversubscribe" >> $GITHUB_ENV
+    - uses: actions/cache@v3
+      with:
+        path: ~/.ccache
+        key: ccache-linux${{ matrix.variant }}hash-${{ github.sha }}
+        restore-keys: ccache-linux${{ matrix.variant }}hash-
     - name: Build PLUMED
       run: |
         ccache -s -M 100M
@@ -81,12 +81,19 @@ jobs:
         make -j 4
         make install
         ccache -s -M 100M
+    #this ensures that the cache for at least plumed is stored
+    - uses: actions/cache/save@v3
+      if: always()
+      with:
+        path: path/to/dependencies
+        key: ccache-linux${{ matrix.variant }}hash-${{ github.sha }}
+
     - name: Build QE
       run: |
         git clone https://gitlab.com/QEF/q-e.git
         cd q-e
         git checkout qe-7.2
-        ./configure --prefix="$HOME/opt"
+        ./configure --prefix="$HOME/opt" --enable-legacy_plugins
         plumed patch --engine qespresso-7.2 -p
         make pw
         make install
